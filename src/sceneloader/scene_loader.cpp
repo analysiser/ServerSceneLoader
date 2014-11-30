@@ -53,7 +53,29 @@ static void parse_attrib_string( const TiXmlElement* elem, bool required, const 
 }
 
 #pragma  mark - load scene main function
-bool load_scene( const char * xmlInputFile )
+static void printObjInfo(vector<tinyobj::shape_t> &shapes)
+{
+    for (size_t i = 0; i < shapes.size(); i++) {
+        printf("shape[%ld].name = %s\n", i, shapes[i].name.c_str());
+        printf("shape[%ld].indices: %ld\n", i, shapes[i].mesh.indices.size());
+        assert((shapes[i].mesh.indices.size() % 3) == 0);
+        for (size_t f = 0; f < shapes[i].mesh.indices.size(); f++) {
+            printf("  idx[%ld] = %d\n", f, shapes[i].mesh.indices[f]);
+        }
+        
+        printf("shape[%ld].vertices: %ld\n", i, shapes[i].mesh.positions.size());
+        assert((shapes[i].mesh.positions.size() % 3) == 0);
+        for (size_t v = 0; v < shapes[i].mesh.positions.size() / 3; v++) {
+            printf("  v[%ld] = (%f, %f, %f)\n", v,
+                   shapes[i].mesh.positions[3*v+0],
+                   shapes[i].mesh.positions[3*v+1],
+                   shapes[i].mesh.positions[3*v+2]);
+        }
+    }
+}
+
+
+bool load_scene( Scene *scene, const char * xmlInputFile )
 {
     TiXmlDocument doc( xmlInputFile );
     const TiXmlElement* root = 0;
@@ -80,8 +102,25 @@ bool load_scene( const char * xmlInputFile )
         while (elem) {
             
             // Find an elem of mesh, parse the element to real mesh
+            // mesh_file_name is used for obj file name
             string mesh_file_name;
             parse_attrib_string(elem, true, STR_FILENAME, &mesh_file_name);
+            
+            // Use obj loader parse the obj file and write to corresponding data structure
+            // load obj file to tiny obj loader
+            std::vector<tinyobj::shape_t> shapes;
+            std::vector<tinyobj::material_t> mtls;
+            
+            std::string err = tinyobj::LoadObj(shapes, mtls, mesh_file_name.c_str());
+            
+            if (!err.empty()) {
+                std::cerr << err << std::endl;
+                exit(1);
+            }
+//            printObjInfo(shapes);
+            
+            scene->addMesh(shapes);
+            scene->addMaterial(mtls);
             
             elem = elem->NextSiblingElement( STR_MESH );
         }

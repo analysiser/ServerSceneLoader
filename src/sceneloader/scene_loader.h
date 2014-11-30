@@ -8,7 +8,10 @@
 
 #ifndef _SCENELOADER_HPP
 #define _SCENELOADER_HPP
+#include "scene.h"
 
-bool load_scene( const char * xmlInputFile );
+using namespace _AZ_;
+
+bool load_scene( Scene *scene, const char * xmlInputFile );
 
 #endif

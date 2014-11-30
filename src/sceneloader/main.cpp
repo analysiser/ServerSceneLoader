@@ -20,6 +20,7 @@
 #include "utils/tiny_obj_loader.h"
 #include "utils/tiny_obj_loader.cc"
 #include "scene_loader.h"
+#include "scene.h"
 
 
 using namespace std;
@@ -30,7 +31,7 @@ using namespace tinyobj;
  */
 struct Options
 {
-    const char *input_obj_file_name;
+    const char *file_name;
 };
 
 /**
@@ -44,7 +45,7 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         return false;
     }
     
-    opt->input_obj_file_name = argv[1];
+    opt->file_name = argv[1];
     return true;
 }
 
@@ -79,19 +80,22 @@ int main(int argc, char* argv[])
         return 1;
     }
     
+    Scene *scene = new Scene();
+    load_scene(scene, opt.file_name);
+    
     // load obj file to tiny obj loader
-    std::string inputfile = opt.input_obj_file_name;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> mtls;
-    
-    std::string err = tinyobj::LoadObj(shapes, mtls, inputfile.c_str());
-    
-    if (!err.empty()) {
-        std::cerr << err << std::endl;
-        exit(1);
-    }
-    
-    printObjInfo(shapes);
+//    std::string inputfile = opt.input_obj_file_name;
+//    std::vector<tinyobj::shape_t> shapes;
+//    std::vector<tinyobj::material_t> mtls;
+//    
+//    std::string err = tinyobj::LoadObj(shapes, mtls, inputfile.c_str());
+//    
+//    if (!err.empty()) {
+//        std::cerr << err << std::endl;
+//        exit(1);
+//    }
+//    
+//    printObjInfo(shapes);
     
     
     
